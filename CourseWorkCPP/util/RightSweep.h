@@ -27,7 +27,7 @@ private:
 
     void calcSolution(std::vector<double> &solutionDest);
 
-    bool isCorrect(
+    bool isValid(
             std::vector<double> &lowerDiagonal,
             std::vector<double> &mainDiagonal,
             std::vector<double> &upperDiagonal);

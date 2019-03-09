@@ -1,9 +1,9 @@
-#ifndef COURSEWORKCPP_PLAIN_H
-#define COURSEWORKCPP_PLAIN_H
+#ifndef COURSEWORKCPP_PLAINNONPARAM_H
+#define COURSEWORKCPP_PLAINNONPARAM_H
 
-#include "EquilibriumFluid.h"
+#include "NonParametric.h"
 
-class Plain : public EquilibriumFluid
+class PlainNonParam : public NonParametric
 {
 protected:
     void calcNextApproximation(Params &params) override;

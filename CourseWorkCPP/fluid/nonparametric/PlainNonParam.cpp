@@ -1,6 +1,6 @@
-#include "Plain.h"
+#include "PlainNonParam.h"
 
-void Plain::calcNextApproximation(Params &params)
+void PlainNonParam::calcNextApproximation(Params &params)
 {
     double coef = 8.0 * step;
     double integral;
@@ -27,7 +27,7 @@ void Plain::calcNextApproximation(Params &params)
     rightSweep.calcRightSweep(coefsLowerDiagonal, coefsMainDiagonal, coefsUpperDiagonal, rightVect, nextApprox);
 }
 
-void Plain::calcInitialApproximation(Params &params)
+void PlainNonParam::calcInitialApproximation(Params &params)
 {
     double sinVal = sin(params.alpha);
     double ctg = 1.0 / tan(params.alpha);
@@ -39,12 +39,12 @@ void Plain::calcInitialApproximation(Params &params)
     }
 }
 
-double Plain::calcVolumeNondimMul(std::vector<double> &func)
+double PlainNonParam::calcVolumeNondimMul(std::vector<double> &func)
 {
     return 1.0 / sqrt(calcIntegralTrapeze(func, step));
 }
 
-double Plain::calcIntegralTrapeze(std::vector<double> values, double step)
+double PlainNonParam::calcIntegralTrapeze(std::vector<double> values, double step)
 {
     double result = values[0] / 2.0;
     auto length = values.size() - 1;

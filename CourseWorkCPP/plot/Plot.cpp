@@ -4,150 +4,114 @@
 
 #define GNUPLOT             "gnuplot"
 
-Plot::Plot(std::vector<Result> &axisymData, std::vector<Result> &plainData,
-        std::vector<Vector2> &axisymHeights, std::vector<Vector2> &plainHeights) :
-        axisymData(axisymData), plainData(plainData), axisymHeights(axisymHeights), plainHeights(plainHeights)
-{
 
+void Plot::addPlot(PlotParams &plotParam)
+{
+	plots.insert(plots.end(), plotParam);
 }
 
-void Plot::plot(unsigned int width, unsigned int height, bool equalAxis) noexcept(false)
+void Plot::clear()
+{
+	plots.clear();
+}
+
+void Plot::plot() noexcept(false)
 {
     openPipes();
-    setupAxisymPipe(width, height, equalAxis);
-    setupPlainPipe(width, height, equalAxis);
-    setupHeightCoefsPipe(width, height);
+	writePipes();
     wait();
     closePipes();
 }
 
-
+// Private
 
 void Plot::openPipes() noexcept(false)
 {
-#ifdef WIN32
-    axisymPipe = _popen(GNUPLOT, "w");
-    plainPipe = _popen(GNUPLOT, "w");
-    heightCoefsPipe = _popen(GNUPLOT, "w");
-#else
-    axisymPipe = popen(GNUPLOT, "w");
-    plainPipe = popen(GNUPLOT, "w");
-    heightCoefsPipe = popen(GNUPLOT, "w");
-#endif
+	auto plotsNum = plots.size();
+	FILE *pipe;
 
-    if (axisymPipe == nullptr || plainPipe == nullptr || heightCoefsPipe == nullptr)
-    {
-        throw PipeException();
-    }
+	for (auto i = 0U; i < plotsNum; i++)
+	{
+#ifdef WIN32
+		pipe = _popen(GNUPLOT, "w");
+#else
+		pipe = popen(GNUPLOT, "w");
+#endif
+		if (pipe == nullptr)
+		{
+			for (auto j = 0U; j < i; j++)
+			{
+#ifdef WIN32
+				_pclose(pipe);
+#else
+				pclose(pipe);
+#endif
+			}
+			throw PipeException();
+		}
+
+		pipes.insert(pipes.end(), pipe);
+	}
 }
 
 void Plot::closePipes()
 {
+	for (FILE *pipe : pipes)
+	{
 #ifdef WIN32
-    _pclose(axisymPipe);
-    _pclose(plainPipe);
-    _pclose(heightCoefsPipe);
+		_pclose(pipe);
 #else
-    pclose(axysimPipe);
-    pclose(plainPipe);
-    pclose(heightCoefsPipe);
+		pclose(pipe);
 #endif
+	}
 }
 
-void Plot::setupAxisymPipe(unsigned int width, unsigned int height, bool equalAxis) noexcept(false)
+void Plot::writePipes()
 {
-    auto size = axisymData.size();
-
-    if (size == 0)
-    {
-        throw EmptyDataException();
-    }
-
-    fprintf(axisymPipe, "set term wxt size %d, %d\n", width, height);
-    fprintf(axisymPipe, "set title \"Осесимметричный случай (a = %lf)\"\n", axisymData.front().alpha);
-    fprintf(axisymPipe, "set xlabel \"r\"\n");
-    fprintf(axisymPipe, "set ylabel \"z\"\n");
-    if (equalAxis)
-    {
-        fprintf(axisymPipe, "set size ratio -1\n");
-    }
-
-    fprintf(axisymPipe, "plot '-' with lines title 'Bo = %lf'", axisymData.front().bond);
-    for (auto i = 1; i < size; i++)
-    {
-        fprintf(axisymPipe, ", '-' with lines title 'Bo = %lf'", axisymData[i].bond);
-    }
-    fprintf(axisymPipe, "\n");
-
-    uploadFluidData(axisymPipe, axisymData);
+	auto pipesNum = pipes.size();
+	for (auto i = 0U; i < pipesNum; i++)
+	{
+		writePipe(pipes[i], plots[i]);
+	}
 }
 
-void Plot::setupPlainPipe(unsigned int width, unsigned int height, bool equalAxis) noexcept(false)
+void Plot::writePipe(FILE *pipe, PlotParams &plotParams)
 {
-    auto size = plainData.size();
+	auto linesNum = plotParams.lines.size();
 
-    if (size == 0)
-    {
-        throw EmptyDataException();
-    }
+	if (linesNum == 0)
+	{
+		return;
+	}
 
-    fprintf(plainPipe, "set term wxt size %d, %d\n", width, height);
-    fprintf(plainPipe, "set title \"Плоский случай (a = %lf)\"\n", plainData.front().alpha);
-    fprintf(plainPipe, "set xlabel \"x\"\n");
-    fprintf(plainPipe, "set ylabel \"y\"\n");
-    if (equalAxis)
-    {
-        fprintf(plainPipe, "set size ratio -1\n");
-    }
+	fprintf(pipe, "set term wxt size %d, %d\n", plotParams.width, plotParams.height);
+	fprintf(pipe, "set title \"%s\"\n", plotParams.title.c_str());
+	fprintf(pipe, "set xlabel \"%s\"\n", plotParams.labelX.c_str());
+	fprintf(pipe, "set ylabel \"%s\"\n", plotParams.labelY.c_str());
+	if (plotParams.equalAxis)
+	{
+		fprintf(pipe, "set size ratio -1\n");
+	}
 
-    fprintf(plainPipe, "plot '-' with lines title 'Bo = %lf'", plainData.front().bond);
-    for (auto i = 1; i < size; i++)
-    {
-        fprintf(plainPipe, ", '-' with lines title 'Bo = %lf'", plainData[i].bond);
-    }
-    fprintf(plainPipe, "\n");
+	fprintf(pipe, "plot '-' with lines title '%s'", plotParams.lines[0].title.c_str());
+	for (auto i = 1; i < linesNum; i++)
+	{
+		fprintf(pipe, ", '-' with lines title '%s'", plotParams.lines[i].title.c_str());
+	}
+	fprintf(pipe, "\n");
 
-    uploadFluidData(plainPipe, plainData);
-}
-
-void Plot::setupHeightCoefsPipe(unsigned int width, unsigned int height) noexcept(false)
-{
-    fprintf(heightCoefsPipe, "set term wxt size %d, %d\n", width, height);
-    fprintf(heightCoefsPipe, "set title \"Коэффициенты сжатия (a = %lf)\"\n", axisymData.front().alpha);
-    fprintf(heightCoefsPipe, "set xlabel \"Bo\"\n");
-    fprintf(heightCoefsPipe, "set ylabel \"k\"\n");
-
-    fprintf(heightCoefsPipe, "plot '-' with lines title 'Осесимметричный случай', "
-                             "'-' with lines title 'Плоский случай'\n");
-
-    uploadHeightCoefsData(heightCoefsPipe, axisymHeights);
-    uploadHeightCoefsData(heightCoefsPipe, plainHeights);
+	for (const PlotLine &line : plotParams.lines)
+	{
+		for (const Vector2 &point : line.points)
+		{
+			fprintf(pipe, "%lf %lf\n", point.x, point.y);
+		}
+		fprintf(pipe, "e\n");
+		fflush(pipe);
+	}
 }
 
 void Plot::wait()
 {
     system("pause");
-}
-
-void Plot::uploadFluidData(FILE *pipe, std::vector<Result> &data)
-{
-    for (const Result &result : data)
-    {
-        for (const Vector2 &point : result.points)
-        {
-            fprintf(pipe, "%lf %lf\n", point.x, point.y);
-        }
-        fprintf(pipe, "e\n");
-        fflush(pipe);
-    }
-}
-
-void Plot::uploadHeightCoefsData(FILE *pipe, std::vector<Vector2> &heightsCoefsData)
-{
-    for (const Vector2 &result : heightsCoefsData)
-    {
-        fprintf(pipe, "%lf %lf\n", result.x, result.y);
-    }
-    fprintf(pipe, "e\n");
-    fflush(pipe);
 }

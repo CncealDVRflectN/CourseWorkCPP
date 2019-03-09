@@ -1,9 +1,9 @@
-#ifndef COURSEWORKCPP_AXISYMMETRIC_H
-#define COURSEWORKCPP_AXISYMMETRIC_H
+#ifndef COURSEWORKCPP_AXISYMMETRICNONPARAM_H
+#define COURSEWORKCPP_AXISYMMETRICNONPARAM_H
 
-#include "EquilibriumFluid.h"
+#include "NonParametric.h"
 
-class Axisymmetric : public EquilibriumFluid
+class AxisymmetricNonParam : public NonParametric
 {
 protected:
     void calcNextApproximation(Params &params) override;

@@ -26,7 +26,7 @@ typedef struct vector2_t
 } Vector2;
 
 
-inline double norm(std::vector<double> next, std::vector<double> prev)
+static inline double norm(std::vector<double> &next, std::vector<double> &prev)
 {
     double max = -std::numeric_limits<double>::infinity();
     double tmp;
@@ -42,6 +42,15 @@ inline double norm(std::vector<double> next, std::vector<double> prev)
     }
 
     return max;
+}
+
+static inline void relaxation(std::vector<double> &nextApprox, const std::vector<double> &curApprox, double relaxationCoef)
+{
+	auto size = nextApprox.size();
+	for (auto i = 0U; i < size; i++)
+	{
+		nextApprox[i] = curApprox[i] + relaxationCoef * (nextApprox[i] - curApprox[i]);
+	}
 }
 
 

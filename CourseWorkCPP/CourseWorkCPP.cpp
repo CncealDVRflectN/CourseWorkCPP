@@ -1,78 +1,121 @@
 ﻿#include <iostream>
-#include "fluid/Axisymmetric.h"
-#include "fluid/Plain.h"
+#include "fluid/nonparametric/AxisymmetricNonParam.h"
+#include "fluid/nonparametric/PlainNonParam.h"
+#include "fluid/parametric/AxisymmetricParam.h"
 #include "plot/Plot.h"
 
 
-enum optIds {WIDTH_ID = 1, HEIGHT_ID, ANGLE_ID, BOND_ID, STEP_ID, RELAXATION_COEF_ID, 
-			ACCURACY_ID, SPLITS_ID, ITERATIONS_ID, RESULTS_ID, NONDIM_ID, EQUAL_ID};
+enum optIds { WIDTH_OPT_ID = 1, HEIGHT_OPT_ID, ANGLE_OPT_ID, BOND_OPT_ID, STEP_OPT_ID, RELAXATION_COEF_OPT_ID, 
+			  ACCURACY_OPT_ID, SPLITS_OPT_ID, ITERATIONS_OPT_ID, RESULTS_OPT_ID, NONDIM_OPT_ID, EQUAL_OPT_ID, FORCE_OPT_ID, 
+			  REVERSE_PARAM_OPT_ID, AXISYM_OPT_ID, PLAIN_OPT_ID, AXISYM_PARAM_OPT_ID, PLAIN_PARAM_OPT_ID, HEIGHT_COEFS_OPT_ID };
 
 
-void handleOpt(int optId, char *optPtr, RelaxationParams *params, 
-			   unsigned int &width, unsigned int &height, bool &equalAxis) noexcept(false)
+typedef struct program_params_t
+{
+	unsigned int width;
+	unsigned int height;
+	bool equalAxis;
+	bool force;
+	bool axisym;
+	bool plain;
+	bool axisymParam;
+	bool plainParam;
+	bool reverseParam;
+	bool heightCoefs;
+} ProgramParams;
+
+
+void handleOpt(int optId, char *optPtr, RelaxationParams &params, ProgramParams &programParams) noexcept(false)
 {
 	switch (optId)
 	{
-		case WIDTH_ID:
-			width = (unsigned int)std::atoi(optPtr);
+		case WIDTH_OPT_ID:
+			programParams.width = (unsigned int)std::atoi(optPtr);
 			break;
-		case HEIGHT_ID:
-			height = (unsigned int)std::atoi(optPtr);
+		case HEIGHT_OPT_ID:
+			programParams.height = (unsigned int)std::atoi(optPtr);
 			break;
-		case ANGLE_ID:
-			params->alpha = std::atof(optPtr) * M_PI / 180.0;
+		case ANGLE_OPT_ID:
+			params.alpha = std::atof(optPtr) * M_PI / 180.0;
 			break;
-		case BOND_ID:
-			params->targetBond = std::atof(optPtr);
+		case BOND_OPT_ID:
+			params.targetBond = std::atof(optPtr);
 			break;
-		case STEP_ID:
-			params->bondStep = std::atof(optPtr);
+		case STEP_OPT_ID:
+			params.bondStep = std::atof(optPtr);
 			break;
-		case RELAXATION_COEF_ID:
-			params->relaxationCoefMin = std::atof(optPtr);
+		case RELAXATION_COEF_OPT_ID:
+			params.relaxationCoefMin = std::atof(optPtr);
 			break;
-		case ACCURACY_ID:
-			params->epsilon = std::atof(optPtr);
+		case ACCURACY_OPT_ID:
+			params.epsilon = std::atof(optPtr);
 			break;
-		case SPLITS_ID:
-			params->splitNum = (unsigned int)std::atoi(optPtr);
+		case SPLITS_OPT_ID:
+			params.splitNum = (unsigned int)std::atoi(optPtr);
 			break;
-		case ITERATIONS_ID:
-			params->iterationsNumMax = (unsigned int)std::atoi(optPtr);
+		case ITERATIONS_OPT_ID:
+			params.iterationsNumMax = (unsigned int)std::atoi(optPtr);
 			break;
-		case RESULTS_ID:
-			params->resultsNum = (unsigned int)std::atoi(optPtr);
+		case RESULTS_OPT_ID:
+			params.resultsNum = (unsigned int)std::atoi(optPtr);
 			break;
-		case NONDIM_ID:
-			params->volumeNondim = true;
+		case NONDIM_OPT_ID:
+			params.volumeNondim = true;
 			break;
-		case EQUAL_ID:
-			equalAxis = true;
+		case EQUAL_OPT_ID:
+			programParams.equalAxis = true;
+			break;
+		case FORCE_OPT_ID:
+			programParams.force = true;
+			break;
+		case REVERSE_PARAM_OPT_ID:
+			programParams.reverseParam = true;
+			break;
+		case AXISYM_OPT_ID:
+			programParams.axisym = true;
+			break;
+		case AXISYM_PARAM_OPT_ID:
+			programParams.axisymParam = true;
+			break;
+		case PLAIN_OPT_ID:
+			programParams.plain = true;
+			break;
+		case PLAIN_PARAM_OPT_ID:
+			programParams.plainParam = true;
+			break;
+		case HEIGHT_COEFS_OPT_ID:
+			programParams.heightCoefs = true;
 			break;
 	}
 }
 
 
-void parseArgs(int argc, char *argv[], RelaxationParams *params,
-	unsigned int &width, unsigned int &height, bool &equalAxis) noexcept(false)
+void parseArgs(int argc, char *argv[], RelaxationParams &params, ProgramParams &programParams) noexcept(false)
 {
 	int optId = 0;
 	char *optPtr = nullptr;
 
 	const LongOpt longOpts[] = {
-		{"width",      WIDTH_ID},
-		{"height",     HEIGHT_ID},
-		{"angle",      ANGLE_ID},
-		{"bond",       BOND_ID},
-		{"step",       STEP_ID},
-		{"relax",      RELAXATION_COEF_ID},
-		{"accuracy",   ACCURACY_ID},
-		{"splits",     SPLITS_ID},
-		{"iterations", ITERATIONS_ID},
-		{"results",    RESULTS_ID},
-		{"nondim",     NONDIM_ID},
-		{"equal",      EQUAL_ID},
-		{nullptr,      0}
+		{"width",			WIDTH_OPT_ID},
+		{"height",			HEIGHT_OPT_ID},
+		{"angle",			ANGLE_OPT_ID},
+		{"bond",			BOND_OPT_ID},
+		{"step",			STEP_OPT_ID},
+		{"relax",			RELAXATION_COEF_OPT_ID},
+		{"accuracy",		ACCURACY_OPT_ID},
+		{"splits",			SPLITS_OPT_ID},
+		{"iterations",		ITERATIONS_OPT_ID},
+		{"results",			RESULTS_OPT_ID},
+		{"nondim",			NONDIM_OPT_ID},
+		{"equal",			EQUAL_OPT_ID},
+		{"force",			FORCE_OPT_ID},
+		{"reverse-param",   REVERSE_PARAM_OPT_ID},
+		{"axisym",			AXISYM_OPT_ID},
+		{"plain",			PLAIN_OPT_ID},
+		{"axisym-param",	AXISYM_PARAM_OPT_ID},
+		{"plain-param",		PLAIN_PARAM_OPT_ID},
+		{"height-coefs",	HEIGHT_COEFS_OPT_ID},
+		{nullptr,			0}
 	};
 
 	for (int i = 0; i < argc; i++)
@@ -80,36 +123,183 @@ void parseArgs(int argc, char *argv[], RelaxationParams *params,
 		optPtr = getOpt(argv[i], nullptr, longOpts, optId);
 		if (optPtr != nullptr)
 		{
-			handleOpt(optId, optPtr, params, width, height, equalAxis);
+			handleOpt(optId, optPtr, params, programParams);
 		}
 		else
 		{
-			printf("Unknown parameter: %s", argv[i]);
+			printf("Unknown parameter: %s \n", argv[i]);
 		}
 	}
 }
 
 
+void logAction(char *action)
+{
+	printf("\n---------- Done %s ----------\n", action);
+}
+
+
+void setupResultsPlotParams(const std::vector<Result> &results, const std::string &title ,PlotParams &plotParams)
+{
+	std::vector<Result>::const_iterator iter;
+	char buffer[256];
+
+	sprintf(buffer, "%s (a = %.1lf)", title.c_str(), 180.0 * results[0].alpha / M_PI);
+	plotParams.title = buffer;
+	for (iter = results.begin(); iter != results.end(); ++iter)
+	{
+		sprintf(buffer, "Bo = %.2lf", iter->bond);
+		plotParams.lines.insert(plotParams.lines.end(), {iter->points, buffer});
+	}
+}
+
+
+PlotLine createHeightsPlotLine(const std::vector<Vector2> &heights, char *title)
+{
+	return { heights, title };
+}
+
+
 int main(int argc, char *argv[])
 {
+	ProgramParams programParams = { 1280U, 720U, false, false, false, false, false, false, false, false };
 	RelaxationParams params = { 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0, 0, false };
-	bool equalAxis = false;
-	unsigned int width = 1280;
-	unsigned int height = 720;
-	parseArgs(argc, argv, &params, width, height, equalAxis);
+	Plot plot;
+	PlotParams heightsPlotParams;
 
-	Axisymmetric axisymmetric;
-	Plain plain;
-	std::vector<Vector2> axisymHeights;
-	std::vector<Vector2> plainHeights;
-	std::vector<Result> *resultsAxi = axisymmetric.calcRelaxation(params, &axisymHeights);
-	std::vector<Result> *resultsPlain = plain.calcRelaxation(params, &plainHeights);
+	parseArgs(argc, argv, params, programParams);
+	logAction("parsing arguments");
 
-	Plot plot(*resultsAxi, *resultsPlain, axisymHeights, plainHeights);
-	plot.plot(width, height, equalAxis);
+	if (programParams.axisym && ((params.alpha > 0.0 && params.alpha < 4.0 * M_PI / 9.0) || programParams.force))
+	{
+		AxisymmetricNonParam axisymmetric;
+		std::vector<Vector2> heights;
+		std::vector<Result> *results;
+		std::string title = "Осесимметричный случай";
+		PlotParams plotParams;
+		plotParams.width = programParams.width;
+		plotParams.height = programParams.height;
+		plotParams.equalAxis = programParams.equalAxis;
+		plotParams.labelX = "r";
+		plotParams.labelY = "z";
 
-	delete resultsAxi;
-	delete resultsPlain;
+		if (programParams.heightCoefs)
+		{
+			results = axisymmetric.calcRelaxation(params, &heights);
+			heightsPlotParams.lines.insert(heightsPlotParams.lines.end(), {heights, title});
+		}
+		else
+		{
+			results = axisymmetric.calcRelaxation(params, nullptr);
+		}
+
+		setupResultsPlotParams(*results, title, plotParams);
+		plot.addPlot(plotParams);
+
+		delete results;
+
+		logAction("calculating axisymmetric problem");
+	}
+
+	if (programParams.plain && ((params.alpha > 0.0 && params.alpha < 4.0 * M_PI / 9.0) || programParams.force))
+	{
+		PlainNonParam plain;
+		std::vector<Vector2> heights;
+		std::vector<Result> *results;
+		std::string title = "Плоский случай";
+		PlotParams plotParams;
+		plotParams.width = programParams.width;
+		plotParams.height = programParams.height;
+		plotParams.equalAxis = programParams.equalAxis;
+		plotParams.labelX = "x";
+		plotParams.labelY = "y";
+
+		if (programParams.heightCoefs)
+		{
+			results = plain.calcRelaxation(params, &heights);
+			heightsPlotParams.lines.insert(heightsPlotParams.lines.end(), { heights, title });
+		}
+		else
+		{
+			results = plain.calcRelaxation(params, nullptr);
+		}
+
+		setupResultsPlotParams(*results, title, plotParams);
+		plot.addPlot(plotParams);
+
+		delete results;
+
+		logAction("calculating plain problem");
+	}
+
+	if (programParams.axisymParam)
+	{
+		AxisymmetricParam axisymmetricParam;
+		std::vector<Vector2> heights;
+		std::vector<Result> *results;
+		std::string title;
+		PlotParams plotParams;
+		plotParams.width = programParams.width;
+		plotParams.height = programParams.height;
+		plotParams.equalAxis = programParams.equalAxis;
+		plotParams.labelX = "r";
+		plotParams.labelY = "z";
+
+		if (programParams.reverseParam)
+		{
+			title = "Осесимметричный параметрический ZR случай";
+
+			if (programParams.heightCoefs)
+			{
+				results = axisymmetricParam.calcRelaxationYX(params, &heights);
+				heightsPlotParams.lines.insert(heightsPlotParams.lines.end(), { heights, title });
+			}
+			else
+			{
+				results = axisymmetricParam.calcRelaxationYX(params, nullptr);
+			}
+
+			setupResultsPlotParams(*results, title, plotParams);
+		}
+		else
+		{
+			title = "Осесимметричный параметрический RZ случай";
+
+			if (programParams.heightCoefs)
+			{
+				results = axisymmetricParam.calcRelaxationXY(params, &heights);
+				heightsPlotParams.lines.insert(heightsPlotParams.lines.end(), { heights, title });
+			}
+			else
+			{
+				results = axisymmetricParam.calcRelaxationXY(params, nullptr);
+			}
+
+			setupResultsPlotParams(*results, title, plotParams);
+		}
+
+		plot.addPlot(plotParams);
+
+		delete results;
+
+		logAction("calculating axisymmetric parametric problem");
+	}
+
+	if (programParams.heightCoefs)
+	{
+		heightsPlotParams.width = programParams.width;
+		heightsPlotParams.height = programParams.height;
+		heightsPlotParams.equalAxis = false;
+		heightsPlotParams.labelX = "Bo";
+		heightsPlotParams.labelY = "k";
+		heightsPlotParams.title = "Коэффициент сжатия";
+		plot.addPlot(heightsPlotParams);
+	}
+
+	plot.plot();
+	plot.clear();
+
+	logAction("plotting");
 
 	return 0;
 }

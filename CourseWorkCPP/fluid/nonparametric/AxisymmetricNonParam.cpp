@@ -1,7 +1,7 @@
-#include "Axisymmetric.h"
+#include "AxisymmetricNonParam.h"
 
 
-void Axisymmetric::calcNextApproximation(Params &params)
+void AxisymmetricNonParam::calcNextApproximation(Params &params)
 {
     double integralCbrt;
     double q;
@@ -35,7 +35,7 @@ void Axisymmetric::calcNextApproximation(Params &params)
     rightSweep.calcRightSweep(coefsLowerDiagonal, coefsMainDiagonal, coefsUpperDiagonal, rightVect, nextApprox);
 }
 
-void Axisymmetric::calcInitialApproximation(Params &params)
+void AxisymmetricNonParam::calcInitialApproximation(Params &params)
 {
     double sinVal = sin(params.alpha);
     double ctg = 1.0 / tan(params.alpha);
@@ -47,13 +47,13 @@ void Axisymmetric::calcInitialApproximation(Params &params)
     }
 }
 
-double Axisymmetric::calcVolumeNondimMul(std::vector<double> &func)
+double AxisymmetricNonParam::calcVolumeNondimMul(std::vector<double> &func)
 {
     return 1.0 / cbrt(calcIntegralTrapeze(func, nodes, step));
 }
 
 
-void Axisymmetric::calcCoefs(double step)
+void AxisymmetricNonParam::calcCoefs(double step)
 {
     double halfStep = step / 2.0;
     auto coefsSize = coefs.size();
@@ -66,7 +66,7 @@ void Axisymmetric::calcCoefs(double step)
     }
 }
 
-double Axisymmetric::calcIntegralTrapeze(std::vector<double> &values, std::vector<double> &nodes, double step)
+double AxisymmetricNonParam::calcIntegralTrapeze(std::vector<double> &values, std::vector<double> &nodes, double step)
 {
     double result = values[0] * nodes[0] / 2.0;
     auto length = values.size() - 1;

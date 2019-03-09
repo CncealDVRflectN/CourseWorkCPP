@@ -10,9 +10,9 @@ void RightSweep::calcRightSweep(
         std::vector<double> &vect,
         std::vector<double> &solutionDest)
 {
-    if (!isCorrect(lowerDiagonal, mainDiagonal, upperDiagonal))
+    if (!isValid(lowerDiagonal, mainDiagonal, upperDiagonal))
     {
-        std::cerr << "Warning: right sweep matrix incorrect!" << std::endl;
+        std::cerr << "Warning: right sweep matrix is invalid!" << std::endl;
     }
 
     auto curBetaSize = beta.size();
@@ -71,7 +71,7 @@ void RightSweep::calcSolution(std::vector<double> &solutionDest)
     }
 }
 
-bool RightSweep::isCorrect(
+bool RightSweep::isValid(
         std::vector<double> &lowerDiagonal,
         std::vector<double> &mainDiagonal,
         std::vector<double> &upperDiagonal)

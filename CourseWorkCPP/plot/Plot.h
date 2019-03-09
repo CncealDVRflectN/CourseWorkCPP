@@ -5,39 +5,47 @@
 #include <cstdio>
 #include "../fluid/fluid.h"
 
+
+typedef struct plot_line_t
+{
+	std::vector<Vector2> points;
+	std::string title;
+} PlotLine;
+
+typedef struct plot_params_t
+{
+	std::vector<PlotLine> lines;
+	std::string title;
+	std::string labelX;
+	std::string labelY;
+	unsigned int width;
+	unsigned int height;
+	bool equalAxis;
+} PlotParams;
+
+
 class Plot
 {
 public:
-    Plot(std::vector<Result> &axisymData, std::vector<Result> &plainData,
-            std::vector<Vector2> &axisymHeight, std::vector<Vector2> &plainHeight);
+	void addPlot(PlotParams &plotParam);
 
-    void plot(unsigned int width, unsigned int height, bool equalAxis) noexcept(false);
+	void clear();
+
+    void plot() noexcept(false);
+
 private:
-    FILE *axisymPipe;
-    FILE *plainPipe;
-    FILE *heightCoefsPipe;
-
-    std::vector<Result> &axisymData;
-    std::vector<Result> &plainData;
-    std::vector<Vector2> &axisymHeights;
-    std::vector<Vector2> &plainHeights;
-
+	std::vector<PlotParams> plots;
+	std::vector<FILE *> pipes;
 
     void openPipes() noexcept(false);
 
     void closePipes();
 
-    void setupAxisymPipe(unsigned int width, unsigned int height, bool equalAxis) noexcept(false);
+	void writePipes();
 
-    void setupPlainPipe(unsigned int width, unsigned int height, bool equalAxis) noexcept(false);
-
-    void setupHeightCoefsPipe(unsigned int width, unsigned int height) noexcept(false);
+	void writePipe(FILE *pipe, PlotParams &plotParams);
 
     void wait();
-
-    void uploadFluidData(FILE *pipe, std::vector<Result> &data);
-
-    void uploadHeightCoefsData(FILE *pipe, std::vector<Vector2> &heightsCoefsData);
 };
 
 
