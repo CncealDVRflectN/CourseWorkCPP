@@ -7,6 +7,8 @@
 class Parametric : public EquilibriumFluid
 {
 public:
+	Parametric();
+
 	std::vector<Result>* calcRelaxation(RelaxationParams &params) override;
 
 	std::vector<Result>* calcRelaxation(RelaxationParams &params, std::vector<Vector2> *heightCoefs) override;

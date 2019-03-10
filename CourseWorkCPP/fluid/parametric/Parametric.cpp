@@ -1,6 +1,13 @@
 #include "Parametric.h"
 
 
+Parametric::Parametric()
+{
+	lastParams = { 0.0, 0.0, 0.0, 0.0, 0U, 0U, false };
+	step = 0.0;
+	iterationsCounter = 0U;
+}
+
 std::vector<Result>* Parametric::calcRelaxation(RelaxationParams &params)
 {
 	return calcRelaxation(params, nullptr);
@@ -200,15 +207,16 @@ void Parametric::calcValuesXY(Params &params) noexcept(false)
 	{
 		throw IterationsLimitException();
 	}
-
-	if (!isValid(nextApproxY))
+	else if (!isValid(nextApproxY))
 	{
 		throw InvalidResultException();
 	}
-
-	lastParams = params;
-	lastValidResultX = nextApproxX;
-	lastValidResultY = nextApproxY;
+	else
+	{
+		lastParams = params;
+		lastValidResultX = nextApproxX;
+		lastValidResultY = nextApproxY;
+	}
 }
 
 
@@ -245,13 +253,14 @@ void Parametric::calcValuesYX(Params &params) noexcept(false)
 	{
 		throw IterationsLimitException();
 	}
-
-	if (!isValid(nextApproxY))
+	else if (!isValid(nextApproxY))
 	{
 		throw InvalidResultException();
 	}
-
-	lastParams = params;
-	lastValidResultX = nextApproxX;
-	lastValidResultY = nextApproxY;
+	else
+	{
+		lastParams = params;
+		lastValidResultX = nextApproxX;
+		lastValidResultY = nextApproxY;
+	}
 }

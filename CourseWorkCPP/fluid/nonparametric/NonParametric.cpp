@@ -1,6 +1,14 @@
 #include "NonParametric.h"
 
 
+NonParametric::NonParametric()
+{
+	lastParams = { 0.0, 0.0, 0.0, 0.0, 0U, 0U, false };
+	step = 0.0;
+	iterationsCounter = 0U;
+}
+
+
 std::vector<Result>* NonParametric::calcRelaxation(RelaxationParams &params) noexcept(false)
 {
 	return calcRelaxation(params, nullptr);

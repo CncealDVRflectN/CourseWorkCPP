@@ -5,6 +5,9 @@
 
 class AxisymmetricNonParam : public NonParametric
 {
+public:
+	AxisymmetricNonParam();
+
 protected:
     void calcNextApproximation(Params &params) override;
 
@@ -16,9 +19,9 @@ private:
     std::vector<double> coefs;
 
 
-    void calcCoefs(double step);
+    void calcCoefs(double stepVal);
 
-    double calcIntegralTrapeze(std::vector<double> &values, std::vector<double> &nodes, double step);
+    double calcIntegralTrapeze(std::vector<double> &values, std::vector<double> &nodesVal, double stepVal);
 };
 
 

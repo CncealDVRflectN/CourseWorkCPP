@@ -1,12 +1,12 @@
-#ifndef COURSEWORKCPP_AXISYMMETRICPARAM_H
-#define COURSEWORKCPP_AXISYMMETRICPARAM_H
+#ifndef COURSEWORKCPP_PLAINPARAM_H
+#define COURSEWORKCPP_PLAINPARAM_H
 
 #include "Parametric.h"
 
-class AxisymmetricParam : public Parametric
+class PlainParam : public Parametric
 {
 public:
-	AxisymmetricParam();
+	PlainParam();
 
 protected:
 	void calcInitialApproximationX(Params &params) override;
@@ -18,11 +18,6 @@ protected:
 	void calcNextApproximationY(Params &params, std::vector<double> &valX, std::vector<double> &prevValX) override;
 
 	double calcVolumeNondimMul(std::vector<double> &valX, std::vector<double> &valY) override;
-
-private:
-	double calcIntegralTrapeze(std::vector<double> &valX, std::vector<double> &valY);
-
-	double calcQ(Params &params, std::vector<double> &valX, double integralVal);
 };
 
 #endif

@@ -1,5 +1,13 @@
 #include "PlainNonParam.h"
 
+
+PlainNonParam::PlainNonParam() : NonParametric()
+{
+	
+}
+
+// Protected
+
 void PlainNonParam::calcNextApproximation(Params &params)
 {
     double coef = 8.0 * step;
@@ -44,7 +52,7 @@ double PlainNonParam::calcVolumeNondimMul(std::vector<double> &func)
     return 1.0 / sqrt(calcIntegralTrapeze(func, step));
 }
 
-double PlainNonParam::calcIntegralTrapeze(std::vector<double> values, double step)
+double PlainNonParam::calcIntegralTrapeze(std::vector<double> values, double stepVal)
 {
     double result = values[0] / 2.0;
     auto length = values.size() - 1;
@@ -54,5 +62,5 @@ double PlainNonParam::calcIntegralTrapeze(std::vector<double> values, double ste
         result += values[i];
     }
 
-    return 2.0 * result * step;
+    return 2.0 * result * stepVal;
 }

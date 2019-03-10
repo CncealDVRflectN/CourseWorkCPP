@@ -1,6 +1,13 @@
 #include "AxisymmetricNonParam.h"
 
 
+AxisymmetricNonParam::AxisymmetricNonParam() : NonParametric()
+{
+	
+}
+
+// Protected
+
 void AxisymmetricNonParam::calcNextApproximation(Params &params)
 {
     double integralCbrt;
@@ -53,28 +60,28 @@ double AxisymmetricNonParam::calcVolumeNondimMul(std::vector<double> &func)
 }
 
 
-void AxisymmetricNonParam::calcCoefs(double step)
+void AxisymmetricNonParam::calcCoefs(double stepVal)
 {
-    double halfStep = step / 2.0;
+    double halfStep = stepVal / 2.0;
     auto coefsSize = coefs.size();
 
     coefs[0] = 0.0;
 
     for (auto i = 1U; i < coefsSize; i++)
     {
-        coefs[i] = (nodes[i] - halfStep) / sqrt(1.0 + pow((curApprox[i] - curApprox[i - 1]) / step, 2.0));
+        coefs[i] = (nodes[i] - halfStep) / sqrt(1.0 + pow((curApprox[i] - curApprox[i - 1]) / stepVal, 2.0));
     }
 }
 
-double AxisymmetricNonParam::calcIntegralTrapeze(std::vector<double> &values, std::vector<double> &nodes, double step)
+double AxisymmetricNonParam::calcIntegralTrapeze(std::vector<double> &values, std::vector<double> &nodesVal, double stepVal)
 {
-    double result = values[0] * nodes[0] / 2.0;
+    double result = values[0] * nodesVal[0] / 2.0;
     auto length = values.size() - 1;
 
     for (auto i = 1; i < length; i++)
     {
-        result += values[i] * nodes[i];
+        result += values[i] * nodesVal[i];
     }
 
-    return 2.0 * M_PI * result * step;
+    return 2.0 * M_PI * result * stepVal;
 }

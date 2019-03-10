@@ -5,6 +5,9 @@
 
 class PlainNonParam : public NonParametric
 {
+public:
+	PlainNonParam();
+
 protected:
     void calcNextApproximation(Params &params) override;
 
@@ -13,7 +16,7 @@ protected:
     double calcVolumeNondimMul(std::vector<double> &func) override;
 
 private:
-    double calcIntegralTrapeze(std::vector<double> values, double step);
+    double calcIntegralTrapeze(std::vector<double> values, double stepVal);
 };
 
 

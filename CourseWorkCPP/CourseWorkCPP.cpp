@@ -135,7 +135,7 @@ void parseArgs(int argc, char *argv[], RelaxationParams &params, ProgramParams &
 
 void logAction(char *action)
 {
-	printf("\n---------- Done %s ----------\n", action);
+	printf("\n---------- Done %s ----------\n\n", action);
 }
 
 
@@ -170,7 +170,7 @@ int main(int argc, char *argv[])
 	parseArgs(argc, argv, params, programParams);
 	logAction("parsing arguments");
 
-	if (programParams.axisym && ((params.alpha > 0.0 && params.alpha < 4.0 * M_PI / 9.0) || programParams.force))
+	if (programParams.axisym && ((params.alpha > 0.0 && (180.0 * params.alpha / M_PI < 77.0)) || programParams.force))
 	{
 		AxisymmetricNonParam axisymmetric;
 		std::vector<Vector2> heights;
@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
 		logAction("calculating axisymmetric problem");
 	}
 
-	if (programParams.plain && ((params.alpha > 0.0 && params.alpha < 4.0 * M_PI / 9.0) || programParams.force))
+	if (programParams.plain && ((params.alpha > 0.0 && (180.0 * params.alpha / M_PI < 77.0)) || programParams.force))
 	{
 		PlainNonParam plain;
 		std::vector<Vector2> heights;
