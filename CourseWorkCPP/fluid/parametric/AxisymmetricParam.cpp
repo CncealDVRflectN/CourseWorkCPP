@@ -20,7 +20,6 @@ void AxisymmetricParam::calcInitialApproximationX(Params & params)
 void AxisymmetricParam::calcInitialApproximationY(Params & params)
 {
 	auto nodesSize = nodes.size();
-	
 	for (auto i = 0U; i < nodesSize; i++)
 	{
 		nextApproxY[i] = (cos(params.alpha * i * step) - cos(params.alpha)) / params.alpha;
@@ -84,7 +83,7 @@ void AxisymmetricParam::calcNextApproximationY(Params &params, std::vector<doubl
 
 double AxisymmetricParam::calcVolumeNondimMul(std::vector<double> &valX, std::vector<double> &valY)
 {
-	return 1.0 / calcIntegralTrapeze(valX, valY);
+	return 1.0 / cbrt(calcIntegralTrapeze(valX, valY));
 }
 
 // Private
