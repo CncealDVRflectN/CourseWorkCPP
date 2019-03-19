@@ -3,6 +3,7 @@
 #include "fluid/nonparametric/PlainNonParam.h"
 #include "fluid/parametric/AxisymmetricParam.h"
 #include "plot/Plot.h"
+#include "fluid/parametric/PlainParam.h"
 
 
 enum optIds { WIDTH_OPT_ID = 1, HEIGHT_OPT_ID, ANGLE_OPT_ID, BOND_OPT_ID, STEP_OPT_ID, RELAXATION_COEF_OPT_ID, 
@@ -170,7 +171,62 @@ int main(int argc, char *argv[])
 	parseArgs(argc, argv, params, programParams);
 	logAction("parsing arguments");
 
-	if (programParams.axisym && ((params.alpha > 0.0 && (180.0 * params.alpha / M_PI < 77.0)) || programParams.force))
+	if (programParams.plainParam)
+	{
+		PlainParam axisymmetricParam;
+		std::vector<Vector2> heights;
+		std::vector<Result> *results;
+		std::string title;
+		PlotParams plotParams;
+		plotParams.width = programParams.width;
+		plotParams.height = programParams.height;
+		plotParams.equalAxis = programParams.equalAxis;
+		plotParams.labelX = "x";
+		plotParams.labelY = "y";
+
+		if (programParams.reverseParam)
+		{
+			title = "Плоский параметрический XY случай";
+
+			if (programParams.heightCoefs)
+			{
+				results = axisymmetricParam.calcRelaxationYX(params, &heights);
+				heightsPlotParams.lines.insert(heightsPlotParams.lines.end(), { heights, title });
+			}
+			else
+			{
+				results = axisymmetricParam.calcRelaxationYX(params, nullptr);
+			}
+
+			setupResultsPlotParams(*results, title, plotParams);
+		}
+		else
+		{
+			title = "Плоский параметрический XY случай";
+
+			if (programParams.heightCoefs)
+			{
+				results = axisymmetricParam.calcRelaxationXY(params, &heights);
+				heightsPlotParams.lines.insert(heightsPlotParams.lines.end(), { heights, title });
+			}
+			else
+			{
+				results = axisymmetricParam.calcRelaxationXY(params, nullptr);
+			}
+
+			setupResultsPlotParams(*results, title, plotParams);
+		}
+
+
+
+		plot.addPlot(plotParams);
+
+		delete results;
+
+		logAction("calculating plain parametric problem");
+	}
+
+	/*if (programParams.axisym && ((params.alpha > 0.0 && (180.0 * params.alpha / M_PI < 77.0)) || programParams.force))
 	{
 		AxisymmetricNonParam axisymmetric;
 		std::vector<Vector2> heights;
@@ -199,7 +255,7 @@ int main(int argc, char *argv[])
 		delete results;
 
 		logAction("calculating axisymmetric problem");
-	}
+	}*/
 
 	if (programParams.plain && ((params.alpha > 0.0 && (180.0 * params.alpha / M_PI < 77.0)) || programParams.force))
 	{
@@ -232,7 +288,7 @@ int main(int argc, char *argv[])
 		logAction("calculating plain problem");
 	}
 
-	if (programParams.axisymParam)
+	/*if (programParams.axisymParam)
 	{
 		AxisymmetricParam axisymmetricParam;
 		std::vector<Vector2> heights;
@@ -278,12 +334,14 @@ int main(int argc, char *argv[])
 			setupResultsPlotParams(*results, title, plotParams);
 		}
 
+
+
 		plot.addPlot(plotParams);
 
 		delete results;
 
 		logAction("calculating axisymmetric parametric problem");
-	}
+	}	*/	
 
 	if (programParams.heightCoefs)
 	{

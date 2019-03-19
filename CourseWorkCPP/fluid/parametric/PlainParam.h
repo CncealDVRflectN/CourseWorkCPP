@@ -18,6 +18,13 @@ protected:
 	void calcNextApproximationY(Params &params, std::vector<double> &valX, std::vector<double> &prevValX) override;
 
 	double calcVolumeNondimMul(std::vector<double> &valX, std::vector<double> &valY) override;
+
+private:
+	double calcIntegralTrapeze(std::vector<double> &valX, std::vector<double> &valY);
+
+	double calcQ(Params &params, std::vector<double> &valX);
+
+	double calcF(Params &params, double y, double integral, double q);
 };
 
 #endif

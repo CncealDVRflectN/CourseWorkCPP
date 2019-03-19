@@ -57,6 +57,10 @@ void RightSweep::calcBeta(
     {
         beta[i] = (vect[i] - lowerDiagonal[i - 1] * beta[i - 1]) /
                   (mainDiagonal[i] + lowerDiagonal[i - 1] * alpha[i - 1]);
+		if (i == size - 1)
+		{
+			continue;
+		}
     }
 }
 
